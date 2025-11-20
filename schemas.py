@@ -11,38 +11,72 @@ Model name is converted to lowercase for the collection name:
 - BlogPost -> "blogs" collection
 """
 
-from pydantic import BaseModel, Field
-from typing import Optional
+from pydantic import BaseModel, Field, HttpUrl
+from typing import Optional, List
 
-# Example schemas (replace with your own):
+# --- Business Schemas for STRNADEL engineering site ---
 
+class Inquiry(BaseModel):
+    """
+    Inquiries from the contact/quote form
+    Collection name: "inquiry"
+    """
+    name: str = Field(..., description="Contact person name")
+    company: Optional[str] = Field(None, description="Company name")
+    email: str = Field(..., description="Contact email")
+    phone: Optional[str] = Field(None, description="Contact phone")
+    subject: Optional[str] = Field(None, description="Short subject")
+    message: str = Field(..., description="Project details or message")
+    
+class CaseStudy(BaseModel):
+    """
+    Case studies / portfolio entries
+    Collection name: "casestudy"
+    """
+    title: str = Field(..., description="Project title")
+    client: Optional[str] = Field(None, description="Client or industry")
+    services: List[str] = Field(default_factory=list, description="Services involved")
+    materials: List[str] = Field(default_factory=list, description="Materials used")
+    description: Optional[str] = Field(None, description="Summary of the project")
+    challenges: Optional[str] = Field(None, description="Challenges faced")
+    solutions: Optional[str] = Field(None, description="Solutions applied")
+    specs: Optional[str] = Field(None, description="Key specs and tolerances")
+    images: List[HttpUrl] = Field(default_factory=list, description="Image URLs")
+
+class JobOpening(BaseModel):
+    """
+    Careers postings
+    Collection name: "jobopening"
+    """
+    title: str
+    location: str = Field("Horka nad Moravou, Czech Republic")
+    type: str = Field("Full-time")
+    description: Optional[str] = None
+    requirements: List[str] = Field(default_factory=list)
+    benefits: List[str] = Field(default_factory=list)
+    
+class TeamMember(BaseModel):
+    """
+    Team members
+    Collection name: "teammember"
+    """
+    name: str
+    role: str
+    bio: Optional[str] = None
+    photo: Optional[HttpUrl] = None
+    email: Optional[str] = None
+
+# Example legacy schemas kept for reference (unused in this project)
 class User(BaseModel):
-    """
-    Users collection schema
-    Collection name: "user" (lowercase of class name)
-    """
-    name: str = Field(..., description="Full name")
-    email: str = Field(..., description="Email address")
-    address: str = Field(..., description="Address")
-    age: Optional[int] = Field(None, ge=0, le=120, description="Age in years")
-    is_active: bool = Field(True, description="Whether user is active")
+    name: str
+    email: str
+    address: str
+    age: Optional[int] = None
+    is_active: bool = True
 
 class Product(BaseModel):
-    """
-    Products collection schema
-    Collection name: "product" (lowercase of class name)
-    """
-    title: str = Field(..., description="Product title")
-    description: Optional[str] = Field(None, description="Product description")
-    price: float = Field(..., ge=0, description="Price in dollars")
-    category: str = Field(..., description="Product category")
-    in_stock: bool = Field(True, description="Whether product is in stock")
-
-# Add your own schemas here:
-# --------------------------------------------------
-
-# Note: The Flames database viewer will automatically:
-# 1. Read these schemas from GET /schema endpoint
-# 2. Use them for document validation when creating/editing
-# 3. Handle all database operations (CRUD) directly
-# 4. You don't need to create any database endpoints!
+    title: str
+    description: Optional[str] = None
+    price: float
+    category: str
+    in_stock: bool = True
